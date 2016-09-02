@@ -1,0 +1,23 @@
+{
+  "name": "dagame",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexeyBerezutsky/dagame.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlexeyBerezutsky/dagame/issues"
+  },
+  "homepage": "https://github.com/AlexeyBerezutsky/dagame#readme",
+  "dependencies": {
+    "http-server": "^0.9.0",
+    "phaser": "^2.6.2"
+  }
+}
