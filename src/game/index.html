@@ -6,8 +6,6 @@
     <link rel="stylesheet" href="css/game.css" type="text/css" />
 	<script src="js/lib/phaser.min.js"></script>
 	<script src="js/Boot.js"></script>
-	<script src="js/Preloader.js"></script>
-	<script src="js/MainMenu.js"></script>
 	<script src="js/Game.js"></script>
 </head>
 <body>
@@ -18,8 +16,6 @@
 window.onload = function() {
 	var game = new Phaser.Game(960, 720, Phaser.AUTO, 'gameContainer');
 	game.state.add('Boot', Boot);
-	game.state.add('Preloader', Preloader);
-	game.state.add('MainMenu', MainMenu);
 	game.state.add('Game', Game);
 	game.state.start('Boot');
 };
