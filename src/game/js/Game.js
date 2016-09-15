@@ -21,7 +21,7 @@ var Game = (function () {
         var tileHeight;
         var spacing;
         var player, platforms;
-        var cursors;
+        var cursors, pad;
 
         this.init = function () {
 
@@ -113,9 +113,21 @@ var Game = (function () {
             player.animations.add('right', [2, 3], 10, true);
         };
 
-        var creatreCoursors = function () {
-
+        var onRightTrigger = function (button, value) {
+            console.log(value);
+            if (player.body.wasTouching.down) {
+                player.body.velocity.y = -value * 2000 ;
+            }
         };
+
+
+        function addButtons() {
+            var pad = game.input.gamepad.pad1;
+
+            var rightTriggerButton = pad.getButton(Phaser.Gamepad.XBOX360_RIGHT_TRIGGER);
+
+            rightTriggerButton.onFloat.add(onRightTrigger);
+        }
 
         this.create = function () {
             //Add a platforms group to hold all of our tiles, and create a bunch of them
@@ -133,15 +145,26 @@ var Game = (function () {
             initPlatforms();
 
             createPlayer();
+            game.input.gamepad.start();
 
+            // if (game.input.gamepad.supported && game.input.gamepad.active && game.input.gamepad.pad1.connected) {
+            pad = game.input.gamepad.pad1;
+
+            pad.addCallbacks(this, {onConnect: addButtons});
+            //} else {
             cursors = game.input.keyboard.createCursorKeys();
+            //}
 
             var timer = game.time.events.loop(2000, addPlatform, this);
+
         };
 
         var gameOver = function () {
             game.state.start('Game');
         };
+        var animationIsOn = false;
+
+
 
         this.update = function () {
             //Make the sprite collide with the ground layer
@@ -152,27 +175,64 @@ var Game = (function () {
                 gameOver();
             }
 
-            //Make the sprite jump when the up key is pushed
-            if (cursors.up.isDown && player.body.wasTouching.down) {
-                player.body.velocity.y = -1400;
+            if (cursors) {
+                //Make the sprite jump when the up key is pushed
+                if (cursors.up.isDown && player.body.wasTouching.down) {
+                    player.body.velocity.y = -1400;
+                }
+                //Make the player go left
+                if (cursors.left.isDown) {
+                    player.body.velocity.x += -50;
+
+                    player.animations.play('left');
+                } else if (cursors.right.isDown) {
+                    player.body.velocity.x += 50;
+
+                    player.animations.play('right');
+                }
+                else {
+                    player.animations.stop();
+                }
             }
-//Make the player go left
-            if (cursors.left.isDown) {
-                player.body.velocity.x += -30;
 
-                player.animations.play('left');
-            }else if (cursors.right.isDown) {
-                player.body.velocity.x += 30;
 
-                player.animations.play('right');
+
+            if (!player.body.velocity.x) {
+                player.animations.stop();
+            }
+
+            console.log('animation', animationIsOn);
+
+            if(pad.isDown(Phaser.Gamepad.XBOX360_DPAD_LEFT)){
+                animationIsOn = true;
+            };
+
+            if(pad.isUp(Phaser.Gamepad.XBOX360_DPAD_LEFT)){
+                animationIsOn = false;
+            };
+            if (pad.isDown(Phaser.Gamepad.XBOX360_DPAD_LEFT) || pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) < -0.1)
+            {
+                console.log('right stick', pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X));
+                player.body.velocity.x += pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X)*10;
+
+                if(!animationIsOn){
+                    player.animations.play('left');
+                    animationIsOn = true;
+                }
+            }
+            else if (pad.isDown(Phaser.Gamepad.XBOX360_DPAD_LEFT) || pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) > 0.1)
+            {
+                player.body.velocity.x += pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X)*10;
+
+                if(!animationIsOn){
+                    player.animations.play('right');
+                    animationIsOn = true;
+                }
             }
             else {
                 player.animations.stop();
             }
 
-            if(!player.body.velocity.x){
-                player.animations.stop();
-            }
         };
     }
 })();

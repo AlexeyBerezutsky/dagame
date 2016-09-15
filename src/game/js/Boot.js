@@ -25,7 +25,10 @@ var Boot =( function() {
 				game.scale.pageAlignHorizontally = true;
 			}
 
+
 		};
+
+
 
 		this.preload = function () {
 			// Here we load the assets required for our preloader
