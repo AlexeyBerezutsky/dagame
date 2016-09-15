@@ -30,8 +30,7 @@ var Boot =( function() {
 		this.preload = function () {
 			// Here we load the assets required for our preloader
 			game.load.image('tile', 'img/tile.png');
-			game.load.image('baddie', 'img/baddie.png');
-			game.load.image('playButton', 'img/lightning-bolt-shadow.png');
+			game.load.spritesheet('baddie','img/baddie.png', 32, 32, 4);
 		};
 
 		this.create = function () {
