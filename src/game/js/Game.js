@@ -102,6 +102,7 @@ var Game = (function () {
             //Make the player fall by applying gravity
             player.body.gravity.y = 2000;
 
+
             //Make the player collide with the game boundaries
             player.body.collideWorldBounds = true;
 
@@ -111,15 +112,16 @@ var Game = (function () {
             player.animations.add('left', [0, 1], 10, true);
 
             player.animations.add('right', [2, 3], 10, true);
+
+            player.body.bounce.set(0.4);
         };
 
         var onRightTrigger = function (button, value) {
             console.log(value);
             if (player.body.wasTouching.down) {
-                player.body.velocity.y = -value * 2000 ;
+                player.body.velocity.y = -value * 2000;
             }
         };
-
 
         function addButtons() {
             var pad = game.input.gamepad.pad1;
@@ -138,7 +140,7 @@ var Game = (function () {
             platforms.createMultiple(250, 'tile');
 
             //The spacing for the initial platforms
-            spacing = 300;
+            spacing = 200;
 
             //Create the inital on screen platforms
 
@@ -156,14 +158,12 @@ var Game = (function () {
             //}
 
             var timer = game.time.events.loop(2000, addPlatform, this);
-
         };
 
         var gameOver = function () {
             game.state.start('Game');
         };
         var animationIsOn = false;
-
 
 
         this.update = function () {
@@ -184,55 +184,34 @@ var Game = (function () {
                 if (cursors.left.isDown) {
                     player.body.velocity.x += -50;
 
-                    player.animations.play('left');
                 } else if (cursors.right.isDown) {
                     player.body.velocity.x += 50;
-
-                    player.animations.play('right');
-                }
-                else {
-                    player.animations.stop();
+                } else {
+                  animationIsOn = false;
                 }
             }
 
-
-
-            if (!player.body.velocity.x) {
-                player.animations.stop();
-            }
-
-            console.log('animation', animationIsOn);
-
-            if(pad.isDown(Phaser.Gamepad.XBOX360_DPAD_LEFT)){
-                animationIsOn = true;
-            };
-
-            if(pad.isUp(Phaser.Gamepad.XBOX360_DPAD_LEFT)){
-                animationIsOn = false;
-            };
-            if (pad.isDown(Phaser.Gamepad.XBOX360_DPAD_LEFT) || pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) < -0.1)
-            {
-                console.log('right stick', pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X));
-                player.body.velocity.x += pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X)*10;
-
-                if(!animationIsOn){
-                    player.animations.play('left');
-                    animationIsOn = true;
+            if (game.input.gamepad.supported && game.input.gamepad.active && game.input.gamepad.pad1.connected) {
+                if (pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) < -0.1) {
+                    player.body.velocity.x += pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) * 10;
                 }
+            else if (pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) > 0.1) {
+                player.body.velocity.x += pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) * 10;
             }
-            else if (pad.isDown(Phaser.Gamepad.XBOX360_DPAD_LEFT) || pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) > 0.1)
-            {
-                player.body.velocity.x += pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X)*10;
-
-                if(!animationIsOn){
-                    player.animations.play('right');
-                    animationIsOn = true;
-                }
-            }
-            else {
-                player.animations.stop();
-            }
-
         };
-    }
-})();
+
+
+        if (player.body.velocity.x> 0.1) {
+            player.animations.play('right');
+            player.body.velocity.x -= 1;
+        } else if(player.body.velocity.x < -0.1){
+            player.body.velocity.x += 1;
+            player.animations.play('left');
+        } else {
+            player.animations.stop();
+        }
+
+    };
+}
+})
+();
