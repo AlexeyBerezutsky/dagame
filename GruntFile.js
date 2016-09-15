@@ -35,7 +35,7 @@ module.exports = function (grunt) {
             },
             my_target: {
                 files: {
-                    'deploy/js/<%= pkg.name %>.js': ['src/game/**/*.js', '!src/game/js/lib/**']
+                    'js/<%= pkg.name %>.js': ['src/game/**/*.js', '!src/game/js/lib/**']
                 }
             }
         },
