@@ -22,6 +22,7 @@ var Game = (function () {
         var spacing;
         var player, platforms;
         var cursors, pad;
+        var score, scoreLabel;
 
         this.init = function () {
 
@@ -51,6 +52,8 @@ var Game = (function () {
             //If no y position is supplied, render it just outside of the screen
             if (typeof(y) == "undefined") {
                 y = -tileHeight;
+
+                incrementScore();
             }
 
             //Work out how many tiles we need to fit across the whole screen
@@ -131,6 +134,19 @@ var Game = (function () {
             rightTriggerButton.onFloat.add(onRightTrigger);
         }
 
+        var createScore = function(){
+            var scoreFont = "100px Arial";
+
+            scoreLabel = game.add.text((game.world.centerX), 100, "0", {font: scoreFont, fill: "#fff"});
+            scoreLabel.anchor.setTo(0.5, 0.5);
+            scoreLabel.align = 'center';
+        };
+
+        var incrementScore = function(){
+            score += 1;
+            scoreLabel.text = score;
+        };
+
         this.create = function () {
             //Add a platforms group to hold all of our tiles, and create a bunch of them
             platforms = game.add.group();
@@ -147,6 +163,11 @@ var Game = (function () {
             initPlatforms();
 
             createPlayer();
+
+            score = 0;
+
+            createScore();
+
             game.input.gamepad.start();
 
             // if (game.input.gamepad.supported && game.input.gamepad.active && game.input.gamepad.pad1.connected) {
@@ -156,6 +177,8 @@ var Game = (function () {
             //} else {
             cursors = game.input.keyboard.createCursorKeys();
             //}
+
+
 
             var timer = game.time.events.loop(2000, addPlatform, this);
         };
