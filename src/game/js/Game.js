@@ -153,8 +153,8 @@ var Game = (function () {
 
         var initPad = function () {
             game.input.gamepad.start();
-            if (game.input.gamepad.supported && game.input.gamepad.active && game.input.gamepad.pad1.connected) {
-                var pad = game.input.gamePad.pad1;
+            if (game.input.gamepad.supported && game.input.gamepad.active) {
+                var pad = game.input.gamepad.pad1;
 
                 if (pad) {
                     pad.addCallbacks(this, {onConnect: addButtons});
@@ -167,18 +167,19 @@ var Game = (function () {
         };
 
         var addButtons = function () {
-            var pad = game.input.gamePad.pad1;
+            var pad = game.input.gamepad.pad1;
 
             var rightTriggerButton = pad.getButton(Phaser.Gamepad.XBOX360_RIGHT_TRIGGER);
 
-            rightTriggerButton.onFloatCallback(onRightTrigger);
+            rightTriggerButton.onFloat.add(onRightTrigger);
 
             var leftStick = pad.getButton(Phaser.Gamepad.XBOX360_RIGHT_TRIGGER);
 
-            leftStick.onAxisCallback(onStickAxisChanged);
+            leftStick.onAxisCallback = onStickAxisChanged;
         };
 
         var onRightTrigger = function (button, value) {
+            var player = game.source.player;
             if (player.body.wasTouching.down) {
 
                 player.body.velocity.y = -value * 2000;
