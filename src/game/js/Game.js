@@ -11,19 +11,17 @@ var Game = (function () {
         };
 
         this.create = function () {
-            game.source = game.source || {platforms: createPlatforms()};
+            game.source = game.source || {};
+
+            game.source.platforms = createPlatforms();
 
             initPlatforms();
 
-            runPlatforms(addPlatform);
+            game.source.timer = runPlatforms(addPlatform);
 
             createPlayer();
 
-            initControls({
-                pad: game.input.gamepad.pad1,
-
-                keyboard: game.input.keyboard.createCursorKeys()
-            });
+            initControls();
 
             createScore();
         };
@@ -64,6 +62,8 @@ var Game = (function () {
 
         var addPlatform = function (y) {
             var tileWidth = game.cache.getImage('tile').width;
+
+            var tileHeight = game.cache.getImage('tile').height;
 
             //If no y position is supplied, render it just outside of the screen
 
@@ -106,9 +106,8 @@ var Game = (function () {
         };
 
         var runPlatforms = function (callBack) {
-            var timer = game.time.events.loop(2000, callBack, this);
+            return game.time.events.loop(2000, callBack, this);
         };
-
 
         var createPlayer = function () {
             var tileHeight = game.cache.getImage('tile').height;
@@ -135,28 +134,33 @@ var Game = (function () {
             //Make the player bounce a little
             player.body.bounce.y = 0.1;
 
-            player.animations.add('left', [0, 1], 10, true);
+            player.animations.add('left', [1, 0], 10, true);
 
-            player.animations.add('right', [2, 3], 10, true);
+            player.animations.add('right', [3, 2], 10, true);
+
+            player.frame = 1;
 
             player.body.bounce.set(0.1);
 
             game.source.player = player;
         };
 
-        var initControls = function (controlls) {
-            initPad(game.controlls.pad);
+        var initControls = function () {
+            initPad();
 
-            initKeyBoard(game.controlls.keyBoard);
+            initKeyBoard();
         };
 
         var initPad = function () {
             game.input.gamepad.start();
+            if (game.input.gamepad.supported && game.input.gamepad.active && game.input.gamepad.pad1.connected) {
+                var pad = game.input.gamePad.pad1;
 
-            var pad = game.input.gamePad.pad1;
-
-            if (pad) {
-                pad.addCallbacks(this, {onConnect: addButtons});
+                if (pad) {
+                    pad.addCallbacks(this, {onConnect: addButtons});
+                } else {
+                    console.log('can not find first gamepad');
+                }
             } else {
                 console.log('Gamepad is not supported');
             }
@@ -191,84 +195,109 @@ var Game = (function () {
         };
 
         var initKeyBoard = function () {
-            var cursors = game.input.keyboard.createCursorKeys();
+            var keyboard = game.input.keyboard;
 
-            var keyboard = new Keyboard(game);
-
-            keyboard.onDownCallback(onDownKeyboard);
-
-
+            keyboard.onDownCallback = onDownKeyboard;
+            keyboard.onUpCallback = onUpKeyboard;
         };
 
         var onDownKeyboard = function (button) {
-            if (cursors) {
-                //Make the sprite jump when the up key is pushed
-                if (cursors.up.isDown && player.body.wasTouching.down) {
-                    player.body.velocity.y = -1400;
-                }
-                //Make the player go left
-                if (cursors.left.isDown) {
-                    player.body.velocity.x += -50;
+            var player = game.source.player;
 
-                } else if (cursors.right.isDown) {
+            switch (button.keyCode) {
+                case Phaser.KeyCode.UP:
+                    if (player.body.wasTouching.down) {
+                        game.source.animationRun = false;
+
+                        player.body.velocity.y = -1400;
+                    }
+
+                    break;
+
+                case Phaser.KeyCode.RIGHT:
+                    game.source.animationRun = true;
+
                     player.body.velocity.x += 50;
-                } else {
-                    animationIsOn = false;
-                }
+
+                    break;
+
+                case Phaser.KeyCode.LEFT:
+                    game.source.animationRun = true;
+
+                    player.body.velocity.x -= 50;
+
+                    break;
+            }
+
+            console.log(player.body.velocity.x);
+        };
+
+        var onUpKeyboard = function (button) {
+            if ([Phaser.KeyCode.RIGHT, Phaser.KeyCode.LEFT].indexOf(button.keyCode) !== -1) {
+                game.source.animationRun = false;
             }
         };
 
         var createScore = function () {
-            game.score = 0;
+            game.source.score = 0;
 
             var scoreFont = "100px Arial";
 
-            game.scoreLabel = game.add.text((game.world.centerX), 100, "0", {font: scoreFont, fill: "#fff"});
+            game.source.scoreLabel = game.add.text((game.world.centerX), 100, "0", {font: scoreFont, fill: "#fff"});
 
-            game.scoreLabel.anchor.setTo(0.5, 0.5);
+            game.source.scoreLabel.anchor.setTo(0.5, 0.5);
 
-            game.scoreLabel.align = 'center';
+            game.source.scoreLabel.align = 'center';
         };
 
         var incrementScore = function () {
-            game.score += 1;
+            game.source.score += 1;
 
-            game.scoreLabel.text = score;
+            game.source.scoreLabel.text = game.source.score;
         };
 
-
-
         var gameOver = function () {
+            game.source.timer.timer.removeAll();
+
             game.state.start('Game');
         };
 
-        var checkCollisions = function(){
+        var checkCollisions = function () {
             var player = game.source.player;
 
             //Make the sprite collide with the ground layer
             game.physics.arcade.collide(player, game.source.platforms);
         };
 
-        var checkPlayerPosition = function(){
+        var checkPlayerPosition = function () {
+            var player = game.source.player;
             //Check if the player is touching the bottom
             if (player.body.position.y >= game.world.height - player.body.height) {
                 gameOver();
             }
         };
 
-        var handlePlayerAnimation = function(){
-            if (player.body.velocity.x > 0.1) {
-                player.animations.play('right');
-                player.body.velocity.x -= 1;
-            } else if (player.body.velocity.x < -0.1) {
-                player.body.velocity.x += 1;
-                player.animations.play('left');
-            } else {
+        var handlePlayerAnimation = function () {
+            var player = game.source.player;
+
+            if (!game.source.animationRun) {
                 player.animations.stop();
+
+                if (player.body.velocity.x > 0.01) {
+                    player.frame = 2;
+                } else if (player.body.velocity.x < -0.01) {
+                    player.frame = 1;
+                } else{
+
+                }
+            }
+            else {
+                if (player.body.velocity.x > 10) {
+                    player.animations.play('right');
+                } else if (player.body.velocity.x < -10) {
+                    player.animations.play('left');
+                }
             }
         };
-
-
     }
-})
-();
+})();
