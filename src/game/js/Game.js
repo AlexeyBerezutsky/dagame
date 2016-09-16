@@ -19,6 +19,8 @@ var Game = (function () {
 
             game.source.timer = runPlatforms(addPlatform);
 
+            createBullets();
+
             createPlayer();
 
             initControls();
@@ -199,7 +201,7 @@ var Game = (function () {
                 game.source.animationRun = true;
 
                 player.body.velocity.x = value * 500;
-            } else{
+            } else {
                 game.source.animationRun = false;
             }
         };
@@ -235,6 +237,11 @@ var Game = (function () {
                     game.source.animationRun = true;
 
                     player.body.velocity.x -= 50;
+
+                    break;
+
+                case Phaser.KeyCode.SPACEBAR:
+                    shootBullet();
 
                     break;
             }
@@ -273,10 +280,10 @@ var Game = (function () {
         };
 
         var checkCollisions = function () {
-            var player = game.source.player;
-
             //Make the sprite collide with the ground layer
-            game.physics.arcade.collide(player, game.source.platforms);
+            game.physics.arcade.collide(game.source.player, game.source.platforms);
+
+            game.physics.arcade.collide(game.source.platforms, game.source.bullets);
         };
 
         var checkPlayerPosition = function () {
@@ -297,7 +304,7 @@ var Game = (function () {
                     player.frame = 2;
                 } else if (player.body.velocity.x < -0.01) {
                     player.frame = 1;
-                } else{
+                } else {
 
                 }
             }
@@ -308,6 +315,88 @@ var Game = (function () {
                     player.animations.play('left');
                 }
             }
+        };
+
+
+        // Setup the example
+       var createBullets = function() {
+           game.source.SHOT_DELAY = 10; // milliseconds (10 bullets/second)
+
+           game.source.BULLET_SPEED = 500; // pixels/second
+
+           game.source.NUMBER_OF_BULLETS = 20;
+
+            // Create an object pool of bullets
+
+           var bullets = game.add.group();
+
+            for(var i = 0; i <  game.source.NUMBER_OF_BULLETS; i++) {
+                // Create each bullet and add it to the group.
+                var bullet = game.add.sprite(0, 0, 'fireball');
+
+                bullet.scale.set(0.05);
+
+                bullets.add(bullet);
+
+                // Set its pivot point to the center of the bullet
+                bullet.anchor.setTo(0.5, 0.5);
+
+                // Enable physics on the bullet
+                game.physics.arcade.enable(bullet);
+
+                //Make the player fall by applying gravity
+                bullet.body.gravity.y = 500;
+
+                //Make the player collide with the game boundaries
+                bullet.body.collideWorldBounds = true;
+
+                bullet.body.bounce.set(0.8);
+
+                // Set its initial state to "dead".
+                bullet.kill();
+            }
+
+           game.source.bullets = bullets;
+        };
+
+        var shootBullet = function() {
+            // Enforce a short delay between shots by recording
+            // the time that each bullet is shot and testing if
+            // the amount of time since the last shot is more than
+            // the required delay.
+            var lastBulletShotAt;
+
+            if (lastBulletShotAt === undefined) {lastBulletShotAt = 0;}
+
+            if (game.time.now - lastBulletShotAt < game.source.SHOT_DELAY) {return;}
+
+            lastBulletShotAt = game.time.now;
+
+            // Get a dead bullet from the pool
+            var bullet = game.source.bullets.getFirstDead();
+
+            // If there aren't any bullets available then don't shoot
+            if (bullet === null || bullet === undefined) return;
+
+            // Revive the bullet
+            // This makes the bullet "alive"
+            bullet.revive();
+
+            // Bullets should kill themselves when they leave the world.
+            // Phaser takes care of this for me by setting this flag
+            // but you can do it yourself by killing the bullet if
+            // its x,y coordinates are outside of the world.
+            bullet.checkWorldBounds = true;
+
+            bullet.outOfBoundsKill = true;
+
+            // Set the bullet position to the gun position.
+            bullet.reset(game.source.player.x, game.source.player.y);
+
+            // Shoot it
+            bullet.body.velocity.x = 0;
+
+            bullet.body.velocity.y = -game.source.BULLET_SPEED;
         };
     }
 })();
