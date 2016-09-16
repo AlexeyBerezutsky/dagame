@@ -46,7 +46,7 @@ var Game = (function () {
             return platforms;
         };
 
-        var initPlatforms = function (platforms) {
+        var initPlatforms = function () {
             var tileHeight = game.cache.getImage('tile').height;
 
             var spacing = 3 * tileHeight;
@@ -106,7 +106,7 @@ var Game = (function () {
         };
 
         var runPlatforms = function (callBack) {
-            return game.time.events.loop(2000, callBack, this);
+            return game.time.events.loop(1500, callBack, this);
         };
 
         var createPlayer = function () {
@@ -173,25 +173,34 @@ var Game = (function () {
 
             rightTriggerButton.onFloat.add(onRightTrigger);
 
-            var leftStick = pad.getButton(Phaser.Gamepad.XBOX360_RIGHT_TRIGGER);
-
-            leftStick.onAxisCallback = onStickAxisChanged;
+            pad.addCallbacks(this, {
+                onAxis: onStickAxisChanged
+            });
         };
 
         var onRightTrigger = function (button, value) {
             var player = game.source.player;
             if (player.body.wasTouching.down) {
+                game.source.animationRun = false;
 
-                player.body.velocity.y = -value * 2000;
+                player.body.velocity.y = -value * 3000;
             }
         };
 
-        var onStickAxisChanged = function () {
-            if (pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) < -0.1) {
-                player.body.velocity.x += pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) * 10;
+        var onStickAxisChanged = function (pad, axis, value) {
+            var player = game.source.player;
+
+            if (value < -0.1) {
+                game.source.animationRun = true;
+
+                player.body.velocity.x = value * 500;
             }
-            else if (pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) > 0.1) {
-                player.body.velocity.x += pad.axis(Phaser.Gamepad.XBOX360_STICK_LEFT_X) * 10;
+            else if (value > 0.1) {
+                game.source.animationRun = true;
+
+                player.body.velocity.x = value * 500;
+            } else{
+                game.source.animationRun = false;
             }
         };
 
