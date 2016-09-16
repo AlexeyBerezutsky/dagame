@@ -11,9 +11,12 @@
 
 <script type="text/javascript">
 window.onload = function() {
-	var game = new Phaser.Game(960, 720, Phaser.AUTO, 'gameContainer');
+	var game = new Phaser.Game(800, 600, Phaser.AUTO, 'gameContainer');
+
 	game.state.add('Boot', Boot);
+
 	game.state.add('Game', Game);
+
 	game.state.start('Boot');
 };
 
