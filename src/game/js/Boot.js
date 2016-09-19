@@ -32,6 +32,8 @@ var Boot =( function() {
 			// Here we load the assets required for our preloader
 			game.load.image('tile', 'img/tile.png');
 
+			game.load.image('brick', 'img/brick.png');
+
 			game.load.image('fireball', 'img/fireball.png');
 
 			game.load.spritesheet('baddie','img/baddie.png', 32, 32, 4);

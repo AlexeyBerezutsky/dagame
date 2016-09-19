@@ -13,7 +13,7 @@ var Game = (function () {
         this.create = function () {
             game.source = game.source || {};
 
-            game.source.platforms = createPlatforms();
+            createHitches();
 
             initPlatforms();
 
@@ -34,6 +34,24 @@ var Game = (function () {
             checkPlayerPosition();
 
             handlePlayerAnimation();
+        };
+
+        var createHitches = function(){
+            game.source.platforms = createPlatforms();
+
+            game.source.bricks = createBricks();
+        };
+
+        var createBricks = function(){
+            var bricks = game.add.group();
+
+            bricks.enableBody = true;
+
+            //create pool of objects;
+
+            bricks.createMultiple(10, 'brick');
+
+            return bricks;
         };
 
         var createPlatforms = function () {
@@ -87,6 +105,9 @@ var Game = (function () {
                 if (i != hole && i != hole + 1) {
                     addTile(i * tileWidth, y);
                 }
+                else if(Math.round(Math.random())){
+                    addBrick(i * tileWidth, y);
+                }
             }
         };
 
@@ -105,6 +126,23 @@ var Game = (function () {
             tile.checkWorldBounds = true;
 
             tile.outOfBoundsKill = true;
+        };
+
+        var addBrick = function(x,y){
+            //Get a tile that is not currently on screen
+            var brick = game.source.bricks.getFirstDead();
+
+            //Reset it to the specified coordinates
+            brick.reset(x, y);
+
+            brick.body.velocity.y = 150;
+
+            brick.body.immovable = true;
+
+            //When the tile leaves the screen, kill it
+            brick.checkWorldBounds = true;
+
+            brick.outOfBoundsKill = true;
         };
 
         var runPlatforms = function (callBack) {
@@ -284,6 +322,10 @@ var Game = (function () {
             game.physics.arcade.collide(game.source.player, game.source.platforms);
 
             game.physics.arcade.collide(game.source.platforms, game.source.bullets);
+
+            game.physics.arcade.collide(game.source.bricks, game.source.bullets);
+
+            game.physics.arcade.collide(game.source.bricks, game.source.player);
         };
 
         var checkPlayerPosition = function () {
