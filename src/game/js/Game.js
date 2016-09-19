@@ -55,6 +55,8 @@ var Game = (function () {
         };
 
         var destroyBrick = function(brick, bullet){
+            incrementScore(10);
+
             brick.kill();
 
             bullet.kill();
@@ -318,8 +320,11 @@ var Game = (function () {
             game.source.scoreLabel.align = 'center';
         };
 
-        var incrementScore = function () {
-            game.source.score += 1;
+        var incrementScore = function (increment) {
+            if (!increment){
+                increment = 1;
+            }
+            game.source.score += increment;
 
             game.source.scoreLabel.text = game.source.score;
         };
