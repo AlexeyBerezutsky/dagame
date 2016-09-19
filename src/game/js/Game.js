@@ -109,13 +109,14 @@ var Game = (function () {
 
             //Keep creating tiles next to each other until we have an entire row
             //Don't add tiles where the random hole is
-            for (var i = 0; i < tilesNeeded; i++) {
+            for (var i = -1; i <= tilesNeeded; i++) {
                 if (i != hole && i != hole + 1) {
                     addTile(i * tileWidth, y);
                 }
-                else if(Math.round(Math.random())){
+                else {//if(Math.floor(Math.random() * 10) + 1 > 8  ){
                     addBrick(i * tileWidth, y);
                 }
+
             }
         };
 
