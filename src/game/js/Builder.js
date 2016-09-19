@@ -10,9 +10,9 @@ var Builder = (function (Cfg) {
             //Add the player to the game by creating a new sprite
             var player = self.game.add.sprite(self.game.world.centerX, self.game.world.height - 7 * cfg.BASE_SIZE, 'baddie');
 
-            player.scale.set(2);
+            player.isRunning = false;
 
-            player.smoothed = true;
+            player.scale.set(2);
 
             //Set the players anchor point to be in the middle horizontally
             player.anchor.setTo(0.5, 1.0);
@@ -35,10 +35,33 @@ var Builder = (function (Cfg) {
             player.body.bounce.set(cfg.PLAYER_BOUNCE);
 
             player.friction = function () {
+                if (this.isRunning) {
+                    return;
+                }
+
                 if (player.body.velocity.x > cfg.PLAYER_VELOCITY_TRESHOLD) {
                     player.body.velocity.x -= cfg.PLAYER_MAX_HORISONTAL_VELOCITY / cfg.PLAYER_FRICTION_COEFFITIENT;
                 } else if (player.body.velocity.x < -cfg.PLAYER_VELOCITY_TRESHOLD) {
                     player.body.velocity.x += cfg.PLAYER_MAX_HORISONTAL_VELOCITY / cfg.PLAYER_FRICTION_COEFFITIENT;
+                }
+            };
+
+            player.animation = function () {
+                if (!this.isRunning) {
+                    this.animations.stop();
+
+                    if (this.body.velocity.x > 0.01) {
+                        this.frame = 2;
+                    } else if (this.body.velocity.x < -0.01) {
+                        this.frame = 1;
+                    }
+                }
+                else {
+                    if (this.body.velocity.x > cfg.PLAYER_VELOCITY_TRESHOLD) {
+                        this.animations.play('right');
+                    } else if (this.body.velocity.x < -cfg.PLAYER_VELOCITY_TRESHOLD) {
+                        this.animations.play('left');
+                    }
                 }
             };
 

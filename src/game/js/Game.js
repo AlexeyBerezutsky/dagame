@@ -42,28 +42,85 @@ var Game = (function (Config, Builder, Inputs) {
             timer = runPlatforms(addPlatform);
         };
 
+        var initControls = function () {
+            inputs.initPad({
+                onRightTrigger: function (button, value) {
+                    if (player.body.wasTouching.down) {
+                        animationRun = false;
+
+                        player.body.velocity.y = -value * cfg.PLAYER_MAX_VERTICAL_VELOCITY;
+                    }
+                },
+
+                onStickAxisChanged: function (pad, axis, value) {
+                    if (value < -0.1) {
+                        player.isRunning = true;
+
+                        player.body.velocity.x = value * cfg.PLAYER_MAX_HORISONTAL_VELOCITY;
+                    }
+                    else if (value > 0.1) {
+                        player.isRunning = true;
+
+                        player.body.velocity.x = value * cfg.PLAYER_MAX_HORISONTAL_VELOCITY;
+                    } else {
+                        player.isRunning = false;
+                    }
+                },
+
+                onAButtonDown: function () {
+                    bullets.shoot(player.body.x + cfg.BASE_SIZE / 2, player.body.y - cfg.BASE_SIZE / 2);
+                }
+            });
+
+            inputs.initKeyboard({
+                onDownKeyCallback: function (button) {
+                    switch (button.keyCode) {
+                        case Phaser.KeyCode.UP:
+                            if (player.body.wasTouching.down) {
+                                player.isRunning = false;
+
+                                player.body.velocity.y = -cfg.PLAYER_MAX_VERTICAL_VELOCITY / 2;
+                            }
+
+                            break;
+
+                        case Phaser.KeyCode.RIGHT:
+                            player.isRunning = true;
+
+                            player.body.velocity.x = cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
+
+                            break;
+
+                        case Phaser.KeyCode.LEFT:
+                            player.isRunning = true;
+
+                            player.body.velocity.x = -cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
+
+                            break;
+
+                        case Phaser.KeyCode.SPACEBAR:
+                            bullets.shoot(player.body.x + cfg.BASE_SIZE / 2, player.body.y - cfg.BASE_SIZE / 2);
+
+                            break;
+                    }
+                },
+
+                onUpKeyboard: function (button) {
+                    if ([Phaser.KeyCode.RIGHT, Phaser.KeyCode.LEFT].indexOf(button.keyCode) !== -1) {
+                        player.isRunning = false;
+                    }
+                }
+            })
+        };
+
         this.update = function () {
             checkCollisions();
 
             checkPlayerPosition();
 
-            handlePlayerAnimation();
+            player.friction();
 
-            handleFriciton();
-        };
-
-        var handleFriciton = function () {
-            if (!animationRun) {
-                player.friction();
-            }
-        };
-
-        var destroyBrick = function (brick, bullet) {
-            brick.kill();
-
-            bullet.kill();
-
-            game.camera.shake(cfg.CAMERA_AMP, cfg.CAMERA_DURATION);
+            player.animation();
         };
 
         var initPlatforms = function () {
@@ -139,81 +196,17 @@ var Game = (function (Config, Builder, Inputs) {
             brick.outOfBoundsKill = true;
         };
 
+        var destroyBrick = function (brick, bullet) {
+            brick.kill();
+
+            bullet.kill();
+
+            game.camera.shake(cfg.CAMERA_AMP, cfg.CAMERA_DURATION);
+        };
+
         var runPlatforms = function (callBack) {
             return game.time.events.loop(cfg.PLATFORM_CREATE_FREQ, callBack, this);
         };
-
-        var initControls = function () {
-            inputs.initPad({
-                onRightTrigger: function (button, value) {
-                    if (player.body.wasTouching.down) {
-                        animationRun = false;
-
-                        player.body.velocity.y = -value * cfg.PLAYER_MAX_VERTICAL_VELOCITY;
-                    }
-                },
-
-                onStickAxisChanged: function (pad, axis, value) {
-                    if (value < -0.1) {
-                        animationRun = true;
-
-                        player.body.velocity.x = value * cfg.PLAYER_MAX_HORISONTAL_VELOCITY;
-                    }
-                    else if (value > 0.1) {
-                        animationRun = true;
-
-                        player.body.velocity.x = value * cfg.PLAYER_MAX_HORISONTAL_VELOCITY;
-                    } else {
-                        animationRun = false;
-                    }
-                },
-
-                onAButtonDown: function () {
-                    bullets.shoot(player.body.x + cfg.BASE_SIZE / 2, player.body.y - cfg.BASE_SIZE / 2);
-                }
-            });
-
-            inputs.initKeyboard({
-                onDownKeyCallback: function (button) {
-                    switch (button.keyCode) {
-                        case Phaser.KeyCode.UP:
-                            if (player.body.wasTouching.down) {
-                                animationRun = false;
-
-                                player.body.velocity.y = -cfg.PLAYER_MAX_VERTICAL_VELOCITY / 2;
-                            }
-
-                            break;
-
-                        case Phaser.KeyCode.RIGHT:
-                            animationRun = true;
-
-                            player.body.velocity.x = cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
-
-                            break;
-
-                        case Phaser.KeyCode.LEFT:
-                            animationRun = true;
-
-                            player.body.velocity.x = -cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
-
-                            break;
-
-                        case Phaser.KeyCode.SPACEBAR:
-                            bullets.shoot(player.body.x + cfg.BASE_SIZE / 2, player.body.y - cfg.BASE_SIZE / 2);
-
-                            break;
-                    }
-                },
-
-                onUpKeyboard: function (button) {
-                    if ([Phaser.KeyCode.RIGHT, Phaser.KeyCode.LEFT].indexOf(button.keyCode) !== -1) {
-                        animationRun = false;
-                    }
-                }
-            })
-        };
-
 
         var gameOver = function () {
             timer.timer.removeAll();
@@ -238,28 +231,5 @@ var Game = (function (Config, Builder, Inputs) {
                 gameOver();
             }
         };
-
-        var handlePlayerAnimation = function () {
-            if (!animationRun) {
-                player.animations.stop();
-
-                if (player.body.velocity.x > 0.01) {
-                    player.frame = 2;
-                } else if (player.body.velocity.x < -0.01) {
-                    player.frame = 1;
-                } else {
-
-                }
-            }
-            else {
-                if (player.body.velocity.x > cfg.PLAYER_VELOCITY_TRESHOLD) {
-                    player.animations.play('right');
-                } else if (player.body.velocity.x < -cfg.PLAYER_VELOCITY_TRESHOLD) {
-                    player.animations.play('left');
-                }
-            }
-        };
-
-
     }
 })(Config, Builder, Inputs);
