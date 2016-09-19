@@ -1,6 +1,5 @@
-var Config = (function () {
+var Config = new (function () {
     return function () {
-    
         var self = this;
         
         self.PLATFORM_SPEED = 80;
@@ -46,5 +45,7 @@ var Config = (function () {
         self.SCORE_COLOR = "#fff";
 
         self.SCORE_INCREMENT = 1;
+
+        self.BASE_SIZE = 64;
     };
 })();

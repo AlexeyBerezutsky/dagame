@@ -29,7 +29,7 @@ var Game = (function (Cfg) {
             //Enable the Arcade physics system
             game.physics.startSystem(cfg.PHYSICS);
 
-            cfg.hitchSize = game.cache.getImage('tile').height;
+            cfg.BASE_SIZE = game.cache.getImage('tile').height;
         };
 
         this.create = function () {
@@ -95,13 +95,13 @@ var Game = (function (Cfg) {
         };
 
         var initPlatforms = function () {
-            var spacing = 3 * cfg.hitchSize;
+            var spacing = 3 * cfg.BASE_SIZE;
 
-            var bottom = game.world.height - cfg.hitchSize,
-                top = cfg.hitchSize;
+            var bottom = game.world.height - cfg.BASE_SIZE,
+                top = cfg.BASE_SIZE;
 
             //Keep creating platforms until they reach (near) the top of the screen
-            for (var y = bottom; y > top - cfg.hitchSize; y = y - spacing) {
+            for (var y = bottom; y > top - cfg.BASE_SIZE; y = y - spacing) {
                 addPlatform(y);
             }
         };
@@ -110,13 +110,13 @@ var Game = (function (Cfg) {
             //If no y position is supplied, render it just outside of the screen
 
             if (typeof(y) == "undefined") {
-                y = -cfg.hitchSize;
+                y = -cfg.BASE_SIZE;
 
                 incrementScore();
             }
 
             //Work out how many tiles we need to fit across the whole screen
-            var tilesNeeded = Math.ceil(game.world.width / cfg.hitchSize);
+            var tilesNeeded = Math.ceil(game.world.width / cfg.BASE_SIZE);
 
             //Add a hole randomly somewhere
             var hole = Math.floor(Math.random() * (tilesNeeded - 3)) + 1;
@@ -125,10 +125,10 @@ var Game = (function (Cfg) {
             //Don't add tiles where the random hole is
             for (var i = -1; i <= tilesNeeded; i++) {
                 if (i != hole && i != hole + 1) {
-                    addTile(i * cfg.hitchSize, y);
+                    addTile(i * cfg.BASE_SIZE, y);
                 }
                 else if (Math.floor(Math.random() * 10) + 1 > cfg.BRICK_APPEAR_RATE) {
-                    addBrick(i * cfg.hitchSize, y);
+                    addBrick(i * cfg.BASE_SIZE, y);
                 }
             }
         };
@@ -173,7 +173,7 @@ var Game = (function (Cfg) {
 
         var createPlayer = function () {
             //Add the player to the game by creating a new sprite
-            var player = game.add.sprite(game.world.centerX, game.world.height - 7 * cfg.hitchSize, 'baddie');
+            var player = game.add.sprite(game.world.centerX, game.world.height - 7 * cfg.BASE_SIZE, 'baddie');
 
             player.scale.set(2);
 
@@ -441,7 +441,7 @@ var Game = (function (Cfg) {
             bullet.outOfBoundsKill = true;
 
             // Set the bullet position to the gun position.
-            bullet.reset(player.x, player.y - cfg.hitchSize / 2);
+            bullet.reset(player.x, player.y - cfg.BASE_SIZE / 2);
 
             // Shoot it
             bullet.body.velocity.x = 0;
