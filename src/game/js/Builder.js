@@ -2,10 +2,12 @@ var Builder = (function(Cfg){
     return function (game) {
         var self = this;
 
+        self.game = game;
+
         var cfg = new Cfg();
 
         var buildPlatforms = function () {
-            var platforms = game.add.group();
+            var platforms = self.game.add.group();
 
             platforms.enableBody = true;
 
@@ -18,7 +20,7 @@ var Builder = (function(Cfg){
 
         var buildPlayer = function () {
             //Add the player to the game by creating a new sprite
-            var player = game.add.sprite(game.world.centerX, game.world.height - 7 * cfg.BASE_SIZE, 'baddie');
+            var player = self.game.add.sprite(self.game.world.centerX, self.game.world.height - 7 * cfg.BASE_SIZE, 'baddie');
 
             player.scale.set(2);
 
@@ -28,7 +30,7 @@ var Builder = (function(Cfg){
             player.anchor.setTo(0.5, 1.0);
 
             //Enable physics on the player
-            game.physics.arcade.enable(player);
+            self.game.physics.arcade.enable(player);
 
             //Make the player fall by applying gravity
             player.body.gravity.y = cfg.PLAYER_GRAVITY;
@@ -48,7 +50,7 @@ var Builder = (function(Cfg){
         };
 
         var buildBricks = function () {
-            var bricks = game.add.group();
+            var bricks = self.game.add.group();
 
             bricks.enableBody = true;
 
@@ -60,11 +62,11 @@ var Builder = (function(Cfg){
         };
 
         var buildBullets = function () {
-            var bullets = game.add.group();
+            var bullets = self.game.add.group();
 
             for (var i = 0; i < cfg.NUMBER_OF_BULLETS; i++) {
                 // Create each bullet and add it to the group.
-                var bullet = game.add.sprite(0, 0, 'fireball');
+                var bullet = self.game.add.sprite(0, 0, 'fireball');
 
                 bullet.scale.set(0.05);
 
@@ -74,13 +76,10 @@ var Builder = (function(Cfg){
                 bullet.anchor.setTo(0.5, 0.5);
 
                 // Enable physics on the bullet
-                game.physics.arcade.enable(bullet);
+                self.game.physics.arcade.enable(bullet);
 
                 //Make the player fall by applying gravity
                 bullet.body.gravity.y = cfg.BULLET_GRAVITY;
-
-                //Make the player collide with the game boundaries
-                bullet.body.collideWorldBounds = true;
 
                 bullet.body.bounce.set(cfg.BULLET_BOUNCE);
 
@@ -88,7 +87,66 @@ var Builder = (function(Cfg){
                 bullet.kill();
             }
 
+            bullets.shoot = function (sourcex,sourcey) {
+                // Enforce a short delay between shots by recording
+                // the time that each bullet is shot and testing if
+                // the amount of time since the last shot is more than
+                // the required delay.
+                var lastBulletShotAt;
+
+                if (lastBulletShotAt === undefined) {
+                    lastBulletShotAt = 0;
+                }
+
+                if (game.time.now - lastBulletShotAt < cfg.SHOT_DELAY) {
+                    return;
+                }
+
+                lastBulletShotAt = game.time.now;
+
+                // Get a dead bullet from the pool
+                var bullet = bullets.getFirstDead();
+
+                // If there aren't any bullets available then don't shoot
+                if (bullet === null || bullet === undefined) return;
+
+                // Revive the bullet
+                // This makes the bullet "alive"
+                bullet.revive();
+
+                bullet.outOfBoundsKill = true;
+
+                // Set the bullet position to the gun position.
+                bullet.reset(sourcex, sourcey);
+
+                // Shoot it
+                bullet.body.velocity.x = 0;
+
+                bullet.body.velocity.y = -cfg.BULLET_SPEED;
+            };
+
             return bullets;
+        };
+
+        var buildScore = function () {
+            var score = {
+                value: 0,
+
+                label: ''
+            };
+            score.label = game.add.text((game.world.centerX), 100, "0", {font: cfg.SCORE_FONT, fill: cfg.SCORE_COLOR});
+
+            score.label.anchor.setTo(0.5, 0.5);
+
+            score.label.align = cfg.SCORE_ALIGN;
+
+            score.increment = function () {
+                this.value += cfg.SCORE_INCREMENT;
+
+                this.label.text = score.value;
+            };
+
+            return score;
         };
 
         var builders = {
@@ -98,11 +156,13 @@ var Builder = (function(Cfg){
 
             'bricks': buildBricks,
 
-            'bullets': buildBullets
+            'bullets': buildBullets,
+
+            'score': buildScore
         };
 
-        self.build = function(name){
-            return builders[name]
+        self.build = function(name, args){
+            return builders[name](args);
         };
     }
 })(Config);
