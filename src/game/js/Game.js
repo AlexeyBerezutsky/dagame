@@ -54,6 +54,14 @@ var Game = (function () {
             return bricks;
         };
 
+        var destroyBrick = function(brick, bullet){
+            brick.kill();
+
+            bullet.kill();
+
+            game.camera.shake(0.05, 500);
+        };
+
         var createPlatforms = function () {
             var platforms = game.add.group();
 
@@ -323,9 +331,9 @@ var Game = (function () {
 
             game.physics.arcade.collide(game.source.platforms, game.source.bullets);
 
-            game.physics.arcade.collide(game.source.bricks, game.source.bullets);
-
             game.physics.arcade.collide(game.source.bricks, game.source.player);
+
+            game.physics.arcade.overlap(game.source.bricks, game.source.bullets, destroyBrick, null, game);
         };
 
         var checkPlayerPosition = function () {
@@ -358,7 +366,6 @@ var Game = (function () {
                 }
             }
         };
-
 
         // Setup the example
        var createBullets = function() {
