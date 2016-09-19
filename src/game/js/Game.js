@@ -1,6 +1,8 @@
-var Game = (function () {
+var Game = (function (Cfg) {
     return function (game) {
         //  When a State is added to Phaser it automatically has the following properties set on it, even if they already exist:
+
+        var cfg;
 
         var player, platforms, bricks, bullets;
 
@@ -8,44 +10,26 @@ var Game = (function () {
 
         var animationRun;
 
-        var hitchSize;
-
         var timer;
 
-        var constants = {
-            PLATFORM_SPEED: 80,
-
-            PLATFORM_CREATE_FREQ: 2000,
-
-            USER_GRAVITY: 2000,
-
-            USER_BOUNCE: 0.1,
-
-            SHOT_DELAY: 10,
-
-            BULLET_SPEED: 700,
-
-            NUMBER_OF_BULLETS: 20,
-
-            BULLET_GRAVITY: 500,
-
-            BULLET_BOUNCE: 0.8
-        };
-
-        var score = {
-            value: 0,
-
-            label: ''
-        };
+        var score;
 
         this.init = function () {
+
+            cfg = new Cfg();
+
+            score = {
+                value: 0,
+
+                label: ''
+            };
             //Set the background colour to blue
-            game.stage.backgroundColor = '479cde';
+            game.stage.backgroundColor = cfg.BACKGROUND_COLOR;
 
             //Enable the Arcade physics system
-            game.physics.startSystem(Phaser.Physics.ARCADE);
+            game.physics.startSystem(cfg.PHYSICS);
 
-            hitchSize = game.cache.getImage('tile').height;
+            cfg.hitchSize = game.cache.getImage('tile').height;
         };
 
         this.create = function () {
@@ -85,7 +69,7 @@ var Game = (function () {
 
             //create pool of objects;
 
-            bricks.createMultiple(10, 'brick');
+            bricks.createMultiple(cfg.BRICK_CACHE_SIZE, 'brick');
 
             return bricks;
         };
@@ -95,7 +79,7 @@ var Game = (function () {
 
             bullet.kill();
 
-            game.camera.shake(0.05, 500);
+            game.camera.shake(cfg.CAMERA_AMP, cfg.CAMERA_DURATION);
         };
 
         var createPlatforms = function () {
@@ -105,19 +89,19 @@ var Game = (function () {
 
             //create pool of objects;
 
-            platforms.createMultiple(250, 'tile');
+            platforms.createMultiple(cfg.TILE_CACHE_SIZE, 'tile');
 
             return platforms;
         };
 
         var initPlatforms = function () {
-            var spacing = 3 * hitchSize;
+            var spacing = 3 * cfg.hitchSize;
 
-            var bottom = game.world.height - hitchSize,
-                top = hitchSize;
+            var bottom = game.world.height - cfg.hitchSize,
+                top = cfg.hitchSize;
 
             //Keep creating platforms until they reach (near) the top of the screen
-            for (var y = bottom; y > top - hitchSize; y = y - spacing) {
+            for (var y = bottom; y > top - cfg.hitchSize; y = y - spacing) {
                 addPlatform(y);
             }
         };
@@ -126,13 +110,13 @@ var Game = (function () {
             //If no y position is supplied, render it just outside of the screen
 
             if (typeof(y) == "undefined") {
-                y = -hitchSize;
+                y = -cfg.hitchSize;
 
                 incrementScore();
             }
 
             //Work out how many tiles we need to fit across the whole screen
-            var tilesNeeded = Math.ceil(game.world.width / hitchSize);
+            var tilesNeeded = Math.ceil(game.world.width / cfg.hitchSize);
 
             //Add a hole randomly somewhere
             var hole = Math.floor(Math.random() * (tilesNeeded - 3)) + 1;
@@ -141,12 +125,11 @@ var Game = (function () {
             //Don't add tiles where the random hole is
             for (var i = -1; i <= tilesNeeded; i++) {
                 if (i != hole && i != hole + 1) {
-                    addTile(i * hitchSize, y);
+                    addTile(i * cfg.hitchSize, y);
                 }
-                else if (Math.floor(Math.random() * 10) + 1 > 8) {
-                    addBrick(i * hitchSize, y);
+                else if (Math.floor(Math.random() * 10) + 1 > cfg.BRICK_APPEAR_RATE) {
+                    addBrick(i * cfg.hitchSize, y);
                 }
-
             }
         };
 
@@ -157,7 +140,7 @@ var Game = (function () {
             //Reset it to the specified coordinates
             tile.reset(x, y);
 
-            tile.body.velocity.y = constants.PLATFORM_SPEED;
+            tile.body.velocity.y = cfg.PLATFORM_SPEED;
 
             tile.body.immovable = true;
 
@@ -174,7 +157,7 @@ var Game = (function () {
             //Reset it to the specified coordinates
             brick.reset(x, y);
 
-            brick.body.velocity.y = constants.PLATFORM_SPEED;
+            brick.body.velocity.y = cfg.PLATFORM_SPEED;
 
             brick.body.immovable = true;
 
@@ -185,12 +168,12 @@ var Game = (function () {
         };
 
         var runPlatforms = function (callBack) {
-            return game.time.events.loop(constants.PLATFORM_CREATE_FREQ, callBack, this);
+            return game.time.events.loop(cfg.PLATFORM_CREATE_FREQ, callBack, this);
         };
 
         var createPlayer = function () {
             //Add the player to the game by creating a new sprite
-            var player = game.add.sprite(game.world.centerX, game.world.height - 7 * hitchSize, 'baddie');
+            var player = game.add.sprite(game.world.centerX, game.world.height - 7 * cfg.hitchSize, 'baddie');
 
             player.scale.set(2);
 
@@ -203,13 +186,10 @@ var Game = (function () {
             game.physics.arcade.enable(player);
 
             //Make the player fall by applying gravity
-            player.body.gravity.y = constants.USER_GRAVITY;
+            player.body.gravity.y = cfg.PLAYER_GRAVITY;
 
             //Make the player collide with the game boundaries
             player.body.collideWorldBounds = true;
-
-            //Make the player bounce a little
-            player.body.bounce.y = 0.1;
 
             player.animations.add('left', [1, 0], 10, true);
 
@@ -217,7 +197,7 @@ var Game = (function () {
 
             player.frame = 1;
 
-            player.body.bounce.set(constants.USER_BOUNCE);
+            player.body.bounce.set(cfg.PLAYER_BOUNCE);
 
             return player;
         };
@@ -265,7 +245,7 @@ var Game = (function () {
             if (player.body.wasTouching.down) {
                 animationRun = false;
 
-                player.body.velocity.y = -value * 3000;
+                player.body.velocity.y = -value * cfg.PLAYER_MAX_VERTICAL_VELOCITY;
             }
         };
 
@@ -273,12 +253,12 @@ var Game = (function () {
             if (value < -0.1) {
                 animationRun = true;
 
-                player.body.velocity.x = value * 500;
+                player.body.velocity.x = value * cfg.PLAYER_MAX_HORISONTAL_VELOCITY;
             }
             else if (value > 0.1) {
                 animationRun = true;
 
-                player.body.velocity.x = value * 500;
+                player.body.velocity.x = value * cfg.PLAYER_MAX_HORISONTAL_VELOCITY;
             } else {
                 animationRun = false;
             }
@@ -300,7 +280,7 @@ var Game = (function () {
                     if (player.body.wasTouching.down) {
                         animationRun = false;
 
-                        player.body.velocity.y = -1400;
+                        player.body.velocity.y = -cfg.PLAYER_MAX_VERTICAL_VELOCITY/2;
                     }
 
                     break;
@@ -308,14 +288,14 @@ var Game = (function () {
                 case Phaser.KeyCode.RIGHT:
                     animationRun = true;
 
-                    player.body.velocity.x += 50;
+                    player.body.velocity.x = cfg.PLAYER_MAX_HORISONTAL_VELOCITY/2;
 
                     break;
 
                 case Phaser.KeyCode.LEFT:
                     animationRun = true;
 
-                    player.body.velocity.x -= 50;
+                    player.body.velocity.x = -cfg.PLAYER_MAX_HORISONTAL_VELOCITY/2;
 
                     break;
 
@@ -335,7 +315,7 @@ var Game = (function () {
         var createScore = function () {
             var scoreFont = "100px Arial";
 
-            score.label = game.add.text((game.world.centerX), 100, "0", {font: scoreFont, fill: "#fff"});
+            score.label = game.add.text((game.world.centerX), 100, "0", {font: cfg.SCORE_FONT, fill: cfg.SCORE_COLOR});
 
             score.label.anchor.setTo(0.5, 0.5);
 
@@ -343,7 +323,7 @@ var Game = (function () {
         };
 
         var incrementScore = function () {
-            score.value += 1;
+            score.value += cfg.SCORE_INCREMENT;
 
             score.label.text = score.value;
         };
@@ -396,7 +376,7 @@ var Game = (function () {
         var createBullets = function () {
             var bullets = game.add.group();
 
-            for (var i = 0; i < constants.NUMBER_OF_BULLETS; i++) {
+            for (var i = 0; i < cfg.NUMBER_OF_BULLETS; i++) {
                 // Create each bullet and add it to the group.
                 var bullet = game.add.sprite(0, 0, 'fireball');
 
@@ -411,12 +391,12 @@ var Game = (function () {
                 game.physics.arcade.enable(bullet);
 
                 //Make the player fall by applying gravity
-                bullet.body.gravity.y = constants.BULLET_GRAVITY;
+                bullet.body.gravity.y = cfg.BULLET_GRAVITY;
 
                 //Make the player collide with the game boundaries
                 bullet.body.collideWorldBounds = true;
 
-                bullet.body.bounce.set(constants.BULLET_BOUNCE);
+                bullet.body.bounce.set(cfg.BULLET_BOUNCE);
 
                 // Set its initial state to "dead".
                 bullet.kill();
@@ -436,7 +416,7 @@ var Game = (function () {
                 lastBulletShotAt = 0;
             }
 
-            if (game.time.now - lastBulletShotAt < constants.SHOT_DELAY) {
+            if (game.time.now - lastBulletShotAt < cfg.SHOT_DELAY) {
                 return;
             }
 
@@ -461,12 +441,12 @@ var Game = (function () {
             bullet.outOfBoundsKill = true;
 
             // Set the bullet position to the gun position.
-            bullet.reset(player.x, player.y - hitchSize / 2);
+            bullet.reset(player.x, player.y - cfg.hitchSize / 2);
 
             // Shoot it
             bullet.body.velocity.x = 0;
 
-            bullet.body.velocity.y = -constants.BULLET_SPEED;
+            bullet.body.velocity.y = -cfg.BULLET_SPEED;
         };
     }
-})();
+})(Config);
