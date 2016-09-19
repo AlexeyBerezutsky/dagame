@@ -113,7 +113,7 @@ var Game = (function () {
                 if (i != hole && i != hole + 1) {
                     addTile(i * tileWidth, y);
                 }
-                else {//if(Math.floor(Math.random() * 10) + 1 > 8  ){
+                else if(Math.floor(Math.random() * 10) + 1 > 8  ){
                     addBrick(i * tileWidth, y);
                 }
 
@@ -127,7 +127,7 @@ var Game = (function () {
             //Reset it to the specified coordinates
             tile.reset(x, y);
 
-            tile.body.velocity.y = 150;
+            tile.body.velocity.y = 80;
 
             tile.body.immovable = true;
 
@@ -144,7 +144,7 @@ var Game = (function () {
             //Reset it to the specified coordinates
             brick.reset(x, y);
 
-            brick.body.velocity.y = 150;
+            brick.body.velocity.y = 80;
 
             brick.body.immovable = true;
 
@@ -155,7 +155,7 @@ var Game = (function () {
         };
 
         var runPlatforms = function (callBack) {
-            return game.time.events.loop(1500, callBack, this);
+            return game.time.events.loop(3000, callBack, this);
         };
 
         var createPlayer = function () {
@@ -368,11 +368,10 @@ var Game = (function () {
             }
         };
 
-        // Setup the example
        var createBullets = function() {
            game.source.SHOT_DELAY = 10; // milliseconds (10 bullets/second)
 
-           game.source.BULLET_SPEED = 500; // pixels/second
+           game.source.BULLET_SPEED = 700; // pixels/second
 
            game.source.NUMBER_OF_BULLETS = 20;
 
@@ -441,7 +440,7 @@ var Game = (function () {
             bullet.outOfBoundsKill = true;
 
             // Set the bullet position to the gun position.
-            bullet.reset(game.source.player.x, game.source.player.y);
+            bullet.reset(game.source.player.x, game.source.player.y - game.cache.getImage('player').height/2);
 
             // Shoot it
             bullet.body.velocity.x = 0;
