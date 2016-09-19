@@ -225,6 +225,10 @@ var Game = (function () {
             pad.addCallbacks(this, {
                 onAxis: onStickAxisChanged
             });
+
+            var AButton = pad.getButton(Phaser.Gamepad.XBOX360_A);
+
+            AButton.onDown.add(shootBullet);
         };
 
         var onRightTrigger = function (button, value) {
