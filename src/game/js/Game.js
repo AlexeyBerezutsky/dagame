@@ -17,14 +17,11 @@ var Game = (function (Config, Builder, Inputs) {
 
             inputs = new Inputs(game);
 
-
             //Set the background colour to blue
             game.stage.backgroundColor = cfg.BACKGROUND_COLOR;
 
             //Enable the Arcade physics system
             game.physics.startSystem(cfg.PHYSICS);
-
-            cfg.BASE_SIZE = game.cache.getImage('tile').height;
         };
 
         this.create = function () {
@@ -51,6 +48,14 @@ var Game = (function (Config, Builder, Inputs) {
             checkPlayerPosition();
 
             handlePlayerAnimation();
+
+            handleFriciton();
+        };
+
+        var handleFriciton = function () {
+            if (!animationRun) {
+                player.friction();
+            }
         };
 
         var destroyBrick = function (brick, bullet) {
@@ -163,17 +168,19 @@ var Game = (function (Config, Builder, Inputs) {
                     }
                 },
 
-                onAButtonDown: function(){bullets.shoot(player.body.x, player.body.y - cfg.BASE_SIZE / 2)}
+                onAButtonDown: function () {
+                    bullets.shoot(player.body.x + cfg.BASE_SIZE / 2, player.body.y - cfg.BASE_SIZE / 2);
+                }
             });
 
             inputs.initKeyboard({
-                onDownCallback: function (button) {
+                onDownKeyCallback: function (button) {
                     switch (button.keyCode) {
                         case Phaser.KeyCode.UP:
                             if (player.body.wasTouching.down) {
                                 animationRun = false;
 
-                                player.body.velocity.y = -cfg.PLAYER_MAX_VERTICAL_VELOCITY/2;
+                                player.body.velocity.y = -cfg.PLAYER_MAX_VERTICAL_VELOCITY / 2;
                             }
 
                             break;
@@ -181,29 +188,29 @@ var Game = (function (Config, Builder, Inputs) {
                         case Phaser.KeyCode.RIGHT:
                             animationRun = true;
 
-                            player.body.velocity.x = cfg.PLAYER_MAX_HORISONTAL_VELOCITY/2;
+                            player.body.velocity.x = cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
 
                             break;
 
                         case Phaser.KeyCode.LEFT:
                             animationRun = true;
 
-                            player.body.velocity.x = -cfg.PLAYER_MAX_HORISONTAL_VELOCITY/2;
+                            player.body.velocity.x = -cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
 
                             break;
 
                         case Phaser.KeyCode.SPACEBAR:
-                            bullets.shoot(player.body.x, player.body.y - cfg.BASE_SIZE / 2);
+                            bullets.shoot(player.body.x + cfg.BASE_SIZE / 2, player.body.y - cfg.BASE_SIZE / 2);
 
                             break;
                     }
                 },
 
                 onUpKeyboard: function (button) {
-                if ([Phaser.KeyCode.RIGHT, Phaser.KeyCode.LEFT].indexOf(button.keyCode) !== -1) {
-                    animationRun = false;
+                    if ([Phaser.KeyCode.RIGHT, Phaser.KeyCode.LEFT].indexOf(button.keyCode) !== -1) {
+                        animationRun = false;
+                    }
                 }
-            }
             })
         };
 
@@ -245,9 +252,9 @@ var Game = (function (Config, Builder, Inputs) {
                 }
             }
             else {
-                if (player.body.velocity.x > 10) {
+                if (player.body.velocity.x > cfg.PLAYER_VELOCITY_TRESHOLD) {
                     player.animations.play('right');
-                } else if (player.body.velocity.x < -10) {
+                } else if (player.body.velocity.x < -cfg.PLAYER_VELOCITY_TRESHOLD) {
                     player.animations.play('left');
                 }
             }

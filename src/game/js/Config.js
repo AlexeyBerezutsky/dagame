@@ -10,6 +10,14 @@ var Config = new (function () {
 
         self.PLAYER_BOUNCE = 0.1;
 
+        self.PLAYER_MAX_VERTICAL_VELOCITY = 3000;
+
+        self. PLAYER_MAX_HORISONTAL_VELOCITY = 500;
+
+        self.PLAYER_FRICTION_COEFFITIENT = 100;
+
+        self.PLAYER_VELOCITY_TRESHOLD = 100;
+
         self.SHOT_DELAY = 10;
 
         self.BULLET_SPEED = 700;
@@ -33,10 +41,6 @@ var Config = new (function () {
         self.CAMERA_DURATION = 500;
 
         self.BRICK_APPEAR_RATE = 8;
-
-        self.PLAYER_MAX_VERTICAL_VELOCITY = 3000;
-
-        self. PLAYER_MAX_HORISONTAL_VELOCITY = 500;
 
         self.SCORE_FONT = "100px Arial";
 

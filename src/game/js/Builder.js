@@ -1,22 +1,10 @@
-var Builder = (function(Cfg){
+var Builder = (function (Cfg) {
     return function (game) {
         var self = this;
 
         self.game = game;
 
         var cfg = new Cfg();
-
-        var buildPlatforms = function () {
-            var platforms = self.game.add.group();
-
-            platforms.enableBody = true;
-
-            //create pool of objects;
-
-            platforms.createMultiple(cfg.TILE_CACHE_SIZE, 'tile');
-
-            return platforms;
-        };
 
         var buildPlayer = function () {
             //Add the player to the game by creating a new sprite
@@ -46,7 +34,27 @@ var Builder = (function(Cfg){
 
             player.body.bounce.set(cfg.PLAYER_BOUNCE);
 
+            player.friction = function () {
+                if (player.body.velocity.x > cfg.PLAYER_VELOCITY_TRESHOLD) {
+                    player.body.velocity.x -= cfg.PLAYER_MAX_HORISONTAL_VELOCITY / cfg.PLAYER_FRICTION_COEFFITIENT;
+                } else if (player.body.velocity.x < -cfg.PLAYER_VELOCITY_TRESHOLD) {
+                    player.body.velocity.x += cfg.PLAYER_MAX_HORISONTAL_VELOCITY / cfg.PLAYER_FRICTION_COEFFITIENT;
+                }
+            };
+
             return player;
+        };
+
+        var buildPlatforms = function () {
+            var platforms = self.game.add.group();
+
+            platforms.enableBody = true;
+
+            //create pool of objects;
+
+            platforms.createMultiple(cfg.TILE_CACHE_SIZE, 'tile');
+
+            return platforms;
         };
 
         var buildBricks = function () {
@@ -87,7 +95,7 @@ var Builder = (function(Cfg){
                 bullet.kill();
             }
 
-            bullets.shoot = function (sourcex,sourcey) {
+            bullets.shoot = function (sourcex, sourcey) {
                 // Enforce a short delay between shots by recording
                 // the time that each bullet is shot and testing if
                 // the amount of time since the last shot is more than
@@ -161,7 +169,7 @@ var Builder = (function(Cfg){
             'score': buildScore
         };
 
-        self.build = function(name, args){
+        self.build = function (name, args) {
             return builders[name](args);
         };
     }

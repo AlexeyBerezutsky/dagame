@@ -1,5 +1,7 @@
 var Inputs = (function () {
     return function (game) {
+        var self = this;
+
         self.game = game;
 
         self.initPad = function (callBacks) {
@@ -37,7 +39,7 @@ var Inputs = (function () {
         self.initKeyboard = function (callBacks) {
             var keyboard = game.input.keyboard;
 
-            keyboard.onDownCallback = callBacks.onDownKeyboard;
+            keyboard.onDownCallback = callBacks.onDownKeyCallback;
 
             keyboard.onUpCallback = callBacks.onUpKeyboard;
 
