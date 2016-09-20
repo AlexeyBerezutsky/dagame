@@ -45,8 +45,8 @@ var Game = (function (Config, Builder, Inputs) {
         };
 
         var initControls = function () {
-            inputs.initPad({
-                onRightTrigger: function (button, value) {
+            var padConfig = {
+                onJump: function (value) {
                     if (player.body.wasTouching.down) {
                         animationRun = false;
 
@@ -54,7 +54,7 @@ var Game = (function (Config, Builder, Inputs) {
                     }
                 },
 
-                onStickAxisChanged: function (pad, axis, value) {
+                onRun: function (value) {
                     if (value < -0.1) {
                         player.isRunning = true;
 
@@ -69,50 +69,44 @@ var Game = (function (Config, Builder, Inputs) {
                     }
                 },
 
-                onAButtonDown: function () {
+                onFire: function () {
                     bullets.shoot(player.body.x + cfg.BASE_SIZE / 2, player.body.y - cfg.BASE_SIZE / 2);
                 }
-            });
+            };
 
-            inputs.initKeyboard({
-                onDownKeyCallback: function (button) {
-                    switch (button.keyCode) {
-                        case Phaser.KeyCode.UP:
-                            if (player.body.wasTouching.down) {
-                                player.isRunning = false;
+            inputs.initPad(padConfig);
 
-                                player.body.velocity.y = -cfg.PLAYER_MAX_VERTICAL_VELOCITY / 2;
-                            }
+            var keyBoardConfig = {
+                onJump: function(){
+                    if (player.body.wasTouching.down) {
+                        player.isRunning = false;
 
-                            break;
-
-                        case Phaser.KeyCode.RIGHT:
-                            player.isRunning = true;
-
-                            player.body.velocity.x = cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
-
-                            break;
-
-                        case Phaser.KeyCode.LEFT:
-                            player.isRunning = true;
-
-                            player.body.velocity.x = -cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
-
-                            break;
-
-                        case Phaser.KeyCode.SPACEBAR:
-                            bullets.shoot(player.body.x + cfg.BASE_SIZE / 2, player.body.y - cfg.BASE_SIZE / 2);
-
-                            break;
+                        player.body.velocity.y = -cfg.PLAYER_MAX_VERTICAL_VELOCITY / 2;
                     }
                 },
 
-                onUpKeyboard: function (button) {
-                    if ([Phaser.KeyCode.RIGHT, Phaser.KeyCode.LEFT].indexOf(button.keyCode) !== -1) {
-                        player.isRunning = false;
-                    }
+                onRight:function(){
+                    player.isRunning = true;
+
+                    player.body.velocity.x = cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
+                },
+
+                onLeft:function(){
+                    player.isRunning = true;
+
+                    player.body.velocity.x = - cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
+                },
+
+                onStop:function(){
+                    player.isRunning = false;
+                },
+
+                onFire:function(){
+                    bullets.shoot(player.body.x + cfg.BASE_SIZE / 2, player.body.y - cfg.BASE_SIZE / 2);
                 }
-            })
+            };
+
+            inputs.initKeyboard(keyBoardConfig);
         };
 
         var initPlatforms = function () {

@@ -69,7 +69,7 @@ module.exports = function (grunt) {
 
                 flatten: true,
 
-                filter: 'isFile',
+                filter: 'isFile'
             },
         },
 
