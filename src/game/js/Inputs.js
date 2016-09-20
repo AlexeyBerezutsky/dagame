@@ -45,5 +45,9 @@ var Inputs = (function () {
 
             return keyboard;
         };
+
+        self.InitVirtualKeyboard = function(callBacks){
+
+        }
     };
 })();
