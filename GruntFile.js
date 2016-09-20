@@ -1,10 +1,17 @@
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
+
     grunt.loadNpmTasks('grunt-contrib-connect');
+
     grunt.loadNpmTasks('grunt-open');
+
     grunt.loadNpmTasks('grunt-contrib-concat');
+
     grunt.loadNpmTasks('grunt-contrib-uglify');
+
     grunt.loadNpmTasks('grunt-contrib-copy');
+
+    grunt.loadNpmTasks('grunt-karma');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -30,8 +37,7 @@ module.exports = function (grunt) {
                 mangle: {
                     except: ['jQuery', 'ID', 'Phaser']
                 },
-				sourceMap: false,
-				banner: grunt.file.read('src/banner')
+				sourceMap: false
             },
             my_target: {
                 files: {
@@ -44,8 +50,15 @@ module.exports = function (grunt) {
                 files: []
             },
         },
+
+        karma: {
+            unit: {
+                configFile: 'karma.config.js'
+            }
+        }
     });
 
     grunt.registerTask('default', ['connect', 'open', 'watch']);
+
     grunt.registerTask('deploy', ['copy', 'uglify']);
 }

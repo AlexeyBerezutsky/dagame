@@ -1,4 +1,4 @@
-var init = function(){
+(function (Boot, Game) {
     var game = new Phaser.Game(800, 600, Phaser.AUTO, 'gameContainer');
 
     game.state.add('Boot', Boot);
@@ -6,4 +6,4 @@ var init = function(){
     game.state.add('Game', Game);
 
     game.state.start('Boot');
-};
+})(Boot, Game);
