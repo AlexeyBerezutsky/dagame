@@ -68,16 +68,33 @@ var Builder = (function (Cfg) {
             return player;
         };
 
-        var buildPlatforms = function () {
-            var platforms = self.game.add.group();
+        var buildTiles = function () {
+            var tiles = self.game.add.group();
 
-            platforms.enableBody = true;
+            tiles.enableBody = true;
 
             //create pool of objects;
 
-            platforms.createMultiple(cfg.TILE_CACHE_SIZE, 'tile');
+            tiles.createMultiple(cfg.TILE_CACHE_SIZE, 'tile');
 
-            return platforms;
+            tiles.addAt = function (x, y) {
+                //Get a tile that is not currently on screen
+                var tile = this.getFirstDead();
+
+                //Reset it to the specified coordinates
+                tile.reset(x, y);
+
+                tile.body.velocity.y = cfg.PLATFORM_SPEED;
+
+                tile.body.immovable = true;
+
+                //When the tile leaves the screen, kill it
+                tile.checkWorldBounds = true;
+
+                tile.outOfBoundsKill = true;
+            };
+
+            return tiles;
         };
 
         var buildBricks = function () {
@@ -89,7 +106,51 @@ var Builder = (function (Cfg) {
 
             bricks.createMultiple(cfg.BRICK_CACHE_SIZE, 'brick');
 
+            bricks.addAt = function (x, y) {
+                //Get a tile that is not currently on screen
+                var brick = this.getFirstDead();
+
+                //Reset it to the specified coordinates
+                brick.reset(x, y);
+
+                brick.body.velocity.y = cfg.PLATFORM_SPEED;
+
+                brick.body.immovable = true;
+
+                //When the tile leaves the screen, kill it
+                brick.checkWorldBounds = true;
+
+                brick.outOfBoundsKill = true;
+            };
+
             return bricks;
+        };
+
+        var buildPlatforms = function (args) {
+            //If no y position is supplied, render it just outside of the screen
+
+            if (typeof(args.verticalPosition) == "undefined") {
+                args.verticalPosition = -cfg.BASE_SIZE;
+
+                args.triggerOnLap();
+            }
+
+            //Work out how many tiles we need to fit across the whole screen
+            var tilesNeeded = Math.ceil(game.world.width / cfg.BASE_SIZE);
+
+            //Add a hole randomly somewhere
+            var hole = Math.floor(Math.random() * (tilesNeeded - 3)) + 1;
+
+            //Keep creating tiles next to each other until we have an entire row
+            //Don't add tiles where the random hole is
+            for (var i = -1; i <= tilesNeeded; i++) {
+                if (i != hole && i != hole + 1) {
+                    args.tiles.addAt(i * cfg.BASE_SIZE, args.verticalPosition);
+                }
+                else if (Math.floor(Math.random() * 10) + 1 > cfg.BRICK_APPEAR_RATE) {
+                    args.bricks.addAt(i * cfg.BASE_SIZE, args.verticalPosition);
+                }
+            }
         };
 
         var buildBullets = function () {
@@ -171,11 +232,13 @@ var Builder = (function (Cfg) {
 
             score.label.align = cfg.SCORE_ALIGN;
 
-            score.increment = function () {
+            var increment = function () {
                 this.value += cfg.SCORE_INCREMENT;
 
                 this.label.text = score.value;
             };
+
+            score.increment = increment.bind(score);
 
             return score;
         };
@@ -183,9 +246,11 @@ var Builder = (function (Cfg) {
         var builders = {
             'player': buildPlayer,
 
-            'platforms': buildPlatforms,
+            'tiles': buildTiles,
 
             'bricks': buildBricks,
+
+            'platforms': buildPlatforms,
 
             'bullets': buildBullets,
 

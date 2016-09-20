@@ -4,7 +4,7 @@ var Game = (function (Config, Builder, Inputs) {
 
         var cfg, builder, inputs;
 
-        var player, platforms, bricks, bullets, score;
+        var player, bullets, score, tiles, bricks;
 
         var animationRun;
 
@@ -25,7 +25,7 @@ var Game = (function (Config, Builder, Inputs) {
         };
 
         this.create = function () {
-            platforms = builder.build('platforms');
+            tiles = builder.build('tiles');
 
             bricks = builder.build('bricks');
 
@@ -39,7 +39,9 @@ var Game = (function (Config, Builder, Inputs) {
 
             initPlatforms();
 
-            timer = runPlatforms(addPlatform);
+            timer = runPlatforms(function () {
+                builder.build('platforms', {tiles: tiles, bricks: bricks, triggerOnLap: score.increment});
+            });
         };
 
         var initControls = function () {
@@ -113,6 +115,30 @@ var Game = (function (Config, Builder, Inputs) {
             })
         };
 
+        var initPlatforms = function () {
+            var spacing = 3 * cfg.BASE_SIZE;
+
+            var bottom = game.world.height - cfg.BASE_SIZE,
+                top = cfg.BASE_SIZE;
+
+            //Keep creating platforms until they reach (near) the top of the screen
+            for (var y = bottom; y > top - cfg.BASE_SIZE; y = y - spacing) {
+                builder.build('platforms', {
+                    verticalPosition: y,
+
+                    tiles: tiles,
+
+                    bricks: bricks,
+
+                    triggerOnLap: score.increment
+                });
+            }
+        };
+
+        var runPlatforms = function (callBack) {
+            return game.time.events.loop(cfg.PLATFORM_CREATE_FREQ, callBack, this);
+        };
+
         this.update = function () {
             checkCollisions();
 
@@ -122,78 +148,15 @@ var Game = (function (Config, Builder, Inputs) {
 
             player.animation();
         };
+        var checkCollisions = function () {
+            //Make the sprite collide with the ground layer
+            game.physics.arcade.collide(player, tiles);
 
-        var initPlatforms = function () {
-            var spacing = 3 * cfg.BASE_SIZE;
+            game.physics.arcade.collide(tiles, bullets);
 
-            var bottom = game.world.height - cfg.BASE_SIZE,
-                top = cfg.BASE_SIZE;
+            game.physics.arcade.collide(bricks, player);
 
-            //Keep creating platforms until they reach (near) the top of the screen
-            for (var y = bottom; y > top - cfg.BASE_SIZE; y = y - spacing) {
-                addPlatform(y);
-            }
-        };
-
-        var addPlatform = function (y) {
-            //If no y position is supplied, render it just outside of the screen
-
-            if (typeof(y) == "undefined") {
-                y = -cfg.BASE_SIZE;
-
-                score.increment();
-            }
-
-            //Work out how many tiles we need to fit across the whole screen
-            var tilesNeeded = Math.ceil(game.world.width / cfg.BASE_SIZE);
-
-            //Add a hole randomly somewhere
-            var hole = Math.floor(Math.random() * (tilesNeeded - 3)) + 1;
-
-            //Keep creating tiles next to each other until we have an entire row
-            //Don't add tiles where the random hole is
-            for (var i = -1; i <= tilesNeeded; i++) {
-                if (i != hole && i != hole + 1) {
-                    addTile(i * cfg.BASE_SIZE, y);
-                }
-                else if (Math.floor(Math.random() * 10) + 1 > cfg.BRICK_APPEAR_RATE) {
-                    addBrick(i * cfg.BASE_SIZE, y);
-                }
-            }
-        };
-
-        var addTile = function (x, y) {
-            //Get a tile that is not currently on screen
-            var tile = platforms.getFirstDead();
-
-            //Reset it to the specified coordinates
-            tile.reset(x, y);
-
-            tile.body.velocity.y = cfg.PLATFORM_SPEED;
-
-            tile.body.immovable = true;
-
-            //When the tile leaves the screen, kill it
-            tile.checkWorldBounds = true;
-
-            tile.outOfBoundsKill = true;
-        };
-
-        var addBrick = function (x, y) {
-            //Get a tile that is not currently on screen
-            var brick = bricks.getFirstDead();
-
-            //Reset it to the specified coordinates
-            brick.reset(x, y);
-
-            brick.body.velocity.y = cfg.PLATFORM_SPEED;
-
-            brick.body.immovable = true;
-
-            //When the tile leaves the screen, kill it
-            brick.checkWorldBounds = true;
-
-            brick.outOfBoundsKill = true;
+            game.physics.arcade.overlap(bricks, bullets, destroyBrick, null, game);
         };
 
         var destroyBrick = function (brick, bullet) {
@@ -204,32 +167,18 @@ var Game = (function (Config, Builder, Inputs) {
             game.camera.shake(cfg.CAMERA_AMP, cfg.CAMERA_DURATION);
         };
 
-        var runPlatforms = function (callBack) {
-            return game.time.events.loop(cfg.PLATFORM_CREATE_FREQ, callBack, this);
-        };
-
-        var gameOver = function () {
-            timer.timer.removeAll();
-
-            game.state.start('Game');
-        };
-
-        var checkCollisions = function () {
-            //Make the sprite collide with the ground layer
-            game.physics.arcade.collide(player, platforms);
-
-            game.physics.arcade.collide(platforms, bullets);
-
-            game.physics.arcade.collide(bricks, player);
-
-            game.physics.arcade.overlap(bricks, bullets, destroyBrick, null, game);
-        };
 
         var checkPlayerPosition = function () {
             //Check if the player is touching the bottom
             if (player.body.position.y >= game.world.height - player.body.height) {
                 gameOver();
             }
+        };
+
+        var gameOver = function () {
+            timer.timer.removeAll();
+
+            game.state.start('Game');
         };
     }
 })(Config, Builder, Inputs);
