@@ -82,7 +82,6 @@ var Inputs = (function () {
         };
 
         self.initVirtualKeyboard = function (callBacks) {
-
             var buttonjump = game.add.button(600, 500, 'buttonjump', null, this, 0, 1, 0, 1);  //game, x, y, key, callback, callbackContext, overFrame, outFrame, downFrame, upFrame
 
             buttonjump.fixedToCamera = true;  //our buttons should stay on the same place
@@ -98,7 +97,7 @@ var Inputs = (function () {
 
             buttonfire.events.onInputDown.add(callBacks.onFire);
 
-            var buttonleft = game.add.button(0, 472, 'buttonhorizontal', null, this, 0, 1, 0, 1);
+            var buttonleft = game.add.button(20, 472, 'buttonhorizontal', null, this, 0, 1, 0, 1);
 
             buttonleft.fixedToCamera = true;
 
