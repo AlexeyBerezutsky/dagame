@@ -33,19 +33,19 @@ module.exports = function (grunt) {
         },
         uglify: {
             options: {
-				compress: true,
+                compress: true,
                 mangle: {
                     except: ['jQuery', 'ID', 'Phaser']
                 },
-				sourceMap: false
+                sourceMap: false
             },
             my_target: {
                 files: {
-                    'js/<%= pkg.name %>.js': ['src/game/**/*.js', '!src/game/js/lib/**']
+                    'js/<%= pkg.name %>.js': ['src/game/js/lib/phaser.js', 'src/game/**/*.js']
                 }
             }
         },
-		copy: {
+        copy: {
             main: {
                 files: []
             },
@@ -61,4 +61,6 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['connect', 'open', 'watch']);
 
     grunt.registerTask('deploy', ['copy', 'uglify']);
+
+    grunt.registerTask('unit', ['karma:unit']);
 }

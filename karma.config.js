@@ -2,7 +2,7 @@ module.exports = function(config) {
     config.set({
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
-        basePath: '../',
+        basePath: '',
 
 
         // frameworks to use
@@ -14,19 +14,9 @@ module.exports = function(config) {
         files: [
             // Minified vendor logic
 
-            'src/main/webapp/js/vendor-logic.min.js',
+            'js/jumping-cat.js',
 
-            // Mocks
-
-            'src/main/webapp/vendor/angular-mocks/angular-mocks.js',
-
-            // Minified application logic
-
-            'src/main/webapp/js/app-logic.min.js',
-
-            // Specs
-
-            'test/unit/**/*-specs.js'
+            'tests/unit/**/*-specs.js'
         ],
 
         // list of files to exclude
@@ -46,13 +36,8 @@ module.exports = function(config) {
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
 
-        reporters: ['spec'],
-
         // settings for JUnit reporter
         junitReporter : {
-            outputDir: 'test/reports/unit-report',
-            outputFile: 'test-results.xml',
-            suite: 'AngularJS-UT'
         },
 
 

@@ -1,4 +1,4 @@
-var Config = new (function () {
+var Config = (function () {
     return function () {
         var self = this;
         
