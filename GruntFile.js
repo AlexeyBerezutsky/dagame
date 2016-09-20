@@ -41,7 +41,7 @@ module.exports = function (grunt) {
             },
             my_target: {
                 files: {
-                    'js/<%= pkg.name %>.js': ['src/game/js/lib/phaser.js', 'src/game/**/*.js']
+                    'js/<%= pkg.name %>.js': ['src/game/**/*.js', '!src/game/js/lib/**']
                 }
             }
         },
@@ -49,6 +49,17 @@ module.exports = function (grunt) {
             main: {
                 files: []
             },
+        },
+
+        concat: {
+            options: {
+                separator: ';\n',
+            },
+            dist: {
+                src: ['src/game/js/lib/phaser.min.js', 'js/jumping-cat.js'],
+
+                dest: 'js/jumping-cat.js',
+            }
         },
 
         karma: {
@@ -60,7 +71,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', ['connect', 'open', 'watch']);
 
-    grunt.registerTask('deploy', ['copy', 'uglify']);
+    grunt.registerTask('deploy', ['copy', 'uglify', 'concat']);
 
-    grunt.registerTask('unit', ['karma:unit']);
+    grunt.registerTask('unit', ['deploy','karma:unit']);
 }
