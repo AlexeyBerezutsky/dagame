@@ -77,7 +77,7 @@ var Game = (function (Config, Builder, Inputs) {
             inputs.initPad(padConfig);
 
             var keyBoardConfig = {
-                onJump: function(){
+                onJump: function () {
                     if (player.body.wasTouching.down) {
                         player.isRunning = false;
 
@@ -85,28 +85,36 @@ var Game = (function (Config, Builder, Inputs) {
                     }
                 },
 
-                onRight:function(){
+                onRight: function () {
                     player.isRunning = true;
 
                     player.body.velocity.x = cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
                 },
 
-                onLeft:function(){
+                onLeft: function () {
                     player.isRunning = true;
 
-                    player.body.velocity.x = - cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
+                    player.body.velocity.x = -cfg.PLAYER_MAX_HORISONTAL_VELOCITY / 2;
                 },
 
-                onStop:function(){
+                onStop: function () {
                     player.isRunning = false;
                 },
 
-                onFire:function(){
+                onFire: function () {
                     bullets.shoot(player.body.x + cfg.BASE_SIZE / 2, player.body.y - cfg.BASE_SIZE / 2);
                 }
             };
 
-            inputs.initKeyboard(keyBoardConfig);
+            if (game.device.desktop) {
+                inputs.initKeyboard(keyBoardConfig);
+
+                console.log('desktop keyboard is on');
+            } else {
+                inputs.initVirtualKeyboard(keyBoardConfig);
+
+                console.log('virtual keyboard is on');
+            }
         };
 
         var initPlatforms = function () {

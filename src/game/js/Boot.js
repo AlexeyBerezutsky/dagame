@@ -37,6 +37,12 @@ var Boot =( function() {
 			game.load.image('fireball', 'img/fireball.png');
 
 			game.load.spritesheet('baddie','img/baddie.png', 32, 32, 4);
+
+			game.load.spritesheet('buttonhorizontal', 'img/button-horizontal.png',64,32);
+
+			game.load.spritesheet('buttonfire', 'img/button-round-a.png',64,64);
+
+			game.load.spritesheet('buttonjump', 'img/button-round-b.png',64,64);
 		};
 
 		this.create = function () {
