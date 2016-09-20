@@ -60,7 +60,7 @@ module.exports = function (grunt) {
         copy: {
             main: {
                 src: 'src/game/img/*',
-                dest: 'js/img/'
+                dest: 'img/'
             },
         },
 
