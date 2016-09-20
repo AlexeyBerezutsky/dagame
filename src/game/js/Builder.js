@@ -136,7 +136,7 @@ var Builder = (function (Cfg) {
             }
 
             //Work out how many tiles we need to fit across the whole screen
-            var tilesNeeded = Math.ceil(game.world.width / cfg.BASE_SIZE);
+            var tilesNeeded = Math.ceil(self.game.world.width / cfg.BASE_SIZE);
 
             //Add a hole randomly somewhere
             var hole = Math.floor(Math.random() * (tilesNeeded - 3)) + 1;
@@ -190,11 +190,11 @@ var Builder = (function (Cfg) {
                     lastBulletShotAt = 0;
                 }
 
-                if (game.time.now - lastBulletShotAt < cfg.SHOT_DELAY) {
+                if (self.game.time.now - lastBulletShotAt < cfg.SHOT_DELAY) {
                     return;
                 }
 
-                lastBulletShotAt = game.time.now;
+                lastBulletShotAt = self.game.time.now;
 
                 // Get a dead bullet from the pool
                 var bullet = bullets.getFirstDead();
@@ -226,7 +226,7 @@ var Builder = (function (Cfg) {
 
                 label: ''
             };
-            score.label = game.add.text((game.world.centerX), 100, "0", {font: cfg.SCORE_FONT, fill: cfg.SCORE_COLOR});
+            score.label = self.game.add.text((self.game.world.centerX), 100, "0", {font: cfg.SCORE_FONT, fill: cfg.SCORE_COLOR});
 
             score.label.anchor.setTo(0.5, 0.5);
 
