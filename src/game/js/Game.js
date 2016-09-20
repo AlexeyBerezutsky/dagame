@@ -148,6 +148,7 @@ var Game = (function (Config, Builder, Inputs) {
 
             player.animation();
         };
+
         var checkCollisions = function () {
             //Make the sprite collide with the ground layer
             game.physics.arcade.collide(player, tiles);
@@ -166,7 +167,6 @@ var Game = (function (Config, Builder, Inputs) {
 
             game.camera.shake(cfg.CAMERA_AMP, cfg.CAMERA_DURATION);
         };
-
 
         var checkPlayerPosition = function () {
             //Check if the player is touching the bottom
