@@ -59,8 +59,17 @@ module.exports = function (grunt) {
         },
         copy: {
             main: {
-                src: 'src/game/img/*',
-                dest: 'img/'
+                expand: true,
+
+                cwd: 'src/game/img/',
+
+                src: '**',
+
+                dest: 'img/',
+
+                flatten: true,
+
+                filter: 'isFile',
             },
         },
 
@@ -86,5 +95,5 @@ module.exports = function (grunt) {
 
     grunt.registerTask('deploy', ['copy', 'uglify', 'concat']);
 
-    grunt.registerTask('unit', ['deploy','karma:unit']);
+    grunt.registerTask('unit', ['deploy', 'karma:unit']);
 }
