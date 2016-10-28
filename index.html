@@ -1,11 +1,13 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="inputToolsApp">
 <head>
     <meta charset="UTF-8"/>
-    <title>Jumping cat</title>
-    <script src="js/jumping-cat.js"></script>
+    <title>testPage</title>
+    <script src="node_modules/angular/angular.min.js"></script>
+    <script src="js/input-tools.js"></script>
+    <script src="fixtures.js"></script>
 </head>
-<body>
-<div id="gameContainer"></div>
+<body ng-controller="main">
+    <input ng-model="someinput" model="somethingFromBE" roll-back/>
 </body>
 </html>

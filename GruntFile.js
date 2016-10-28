@@ -19,7 +19,7 @@ module.exports = function (grunt) {
             server: {
                 options: {
                     port: 8080,
-                    base: './src/game'
+                    base: './'
                 }
             }
         },
@@ -35,42 +35,10 @@ module.exports = function (grunt) {
             options: {
                 compress: true,
                 mangle: {
-                    except: ['jQuery', 'ID', 'Phaser']
+                    except: []
                 },
                 sourceMap: false
-            },
-            my_target: {
-                files: {
-                    'js/<%= pkg.name %>.js': [
-                        'src/game/js/Config.js',
-
-                        'src/game/js/Builder.js',
-
-                        'src/game/js/Inputs.js',
-
-                        'src/game/js/Boot.js',
-
-                        'src/game/js/Game.js',
-
-                        'src/game/js/Init.js'
-                    ]
-                }
             }
-        },
-        copy: {
-            main: {
-                expand: true,
-
-                cwd: 'src/game/img/',
-
-                src: '**',
-
-                dest: 'img/',
-
-                flatten: true,
-
-                filter: 'isFile'
-            },
         },
 
         concat: {
@@ -78,9 +46,9 @@ module.exports = function (grunt) {
                 separator: ';\n',
             },
             dist: {
-                src: ['src/game/js/lib/phaser.min.js', 'js/jumping-cat.js'],
+                src: ['src/*.js','src/**/*.js'],
 
-                dest: 'js/jumping-cat.js',
+                dest: 'js/input-tools.js'
             }
         },
 
@@ -93,7 +61,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', ['connect', 'open', 'watch']);
 
-    grunt.registerTask('deploy', ['copy', 'uglify', 'concat']);
+    grunt.registerTask('deploy', ['concat']);
 
     grunt.registerTask('unit', ['deploy', 'karma:unit']);
-}
+};

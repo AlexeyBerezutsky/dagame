@@ -1,7 +1,7 @@
 {
-  "name": "jumping-cat",
+  "name": "input-tools",
   "version": "0.0.1",
-  "description": "just for lulz",
+  "description": "input-tools",
   "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,10 +19,11 @@
     "karma": "^1.3.0",
     "karma-jasmine": "^1.0.2",
     "karma-jasmine-matchers": "^3.0.1",
-    "karma-phantomjs-launcher": "^1.0.2"
-  },
-  "dependencies": {
+    "karma-phantomjs-launcher": "^1.0.2",
     "jasmine-matchers": "^0.2.3",
     "phantomjs": "^2.1.7"
+  },
+  "dependencies": {
+    "angular": "^1.5.8"
   }
 }
